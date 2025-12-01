@@ -11,5 +11,8 @@ router.post(
     internalAuth,
     AuthController.verifyAlumni
 );
+router.get("/test",()=>{
+    console.log("auth working.")
+})
 
 module.exports = router;

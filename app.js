@@ -1,45 +1,30 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-dotenv.config();
-const authRoutes = require('./src/routes/routes.auth');
-const studentRoutes = require('./src/routes/routes.student');
-const connectionRoutes = require('./src/routes/routes.connection');
-// const alumniRoutes = require('./src/routes/routes.alumni');
-// const chatRoutes = require('./src/routes/routes.chat.js');
-// const eventRoutes = require('./src/routes/routes.event.js');
-// const jobRoutes = require('./src/routes/routes.job.js');
-// const messageRoutes = require('./src/routes/routes.message.js');
-// const postRoutes = require('./src/routes/routes.post.js');
-// const userRoutes = require('./src/routes/routes.user.js');
-require('dotenv').config();
+const { PORT } = require('./config');
+const v1Routes = require('./src/routes/v1');
+const dbConnect = require('./utils/db.js');
 
 const app = express();
-const port = 5001;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const uri = process.env.MONGODB_URI;
-mongoose.connect(uri);
+app.use('/api/v1', v1Routes);
 
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => {
-  console.log('Connected to MongoDB');
+dbConnect();
+
+
+app.get('/', (req, res) => {
+  res.send('Hello World!');
 });
 
-app.use('/auth', authRoutes);
-app.use('/students', studentRoutes);
-app.use('/connections', connectionRoutes);
-// app.use('/alumni', alumniRoutes);
-// app.use('/chats', chatRoutes);
-// app.use('/events', eventRoutes);
-// app.use('/jobs', jobRoutes);
-// app.use('/messages', messageRoutes);
-// app.use('/posts', postRoutes);
-// app.use('/users', userRoutes);
 
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+
+app.listen(PORT, () => {
+  console.log(`Server listening at http://localhost:${PORT}`);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
