@@ -1,18 +1,32 @@
 const jwt = require("jsonwebtoken");
 
-const internalAuth = (req, res, next) => {
-    const apiKey = req.headers["x-internal-api-key"];
-    if (apiKey && apiKey === process.env.INTERNAL_API_KEY) {
-        next();
-    } else {
-        res.status(403).json({
-            success: false,
-            message: "Unauthorized access.",
-        });
-    }
+const internalAuth = (required=true) => {
+    return async (req, res, next) => {
+        const apiKey = req.headers["x-internal-api-key"];
+        const adminId = req.headers["x-admin-id"];
+        if (apiKey && apiKey === process.env.INTERNAL_API_KEY && adminId) {
+            req.admin = {
+                id: adminId,
+            };
+            req.skipAuth = true;
+            next();
+        } else {
+            if (!required) {
+                next();
+            } else {
+                res.status(403).json({
+                    success: false,
+                    message: "Unauthorized access.",
+                });
+            }
+        }
+    };
 };
 
 const authenticateToken = (req, res, next) => {
+    if (req.skipAuth) {
+        return next();
+    }
     const token =
         req.headers.authorization && req.headers.authorization.split(" ")[1];
     if (!token) {

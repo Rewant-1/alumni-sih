@@ -1,4 +1,3 @@
-const { application } = require("express");
 const mongoose = require("mongoose");
 
 const jobSchema = new mongoose.Schema({
@@ -11,6 +10,7 @@ const jobSchema = new mongoose.Schema({
         default: true,
         required: true,
     },
+    draft: { type: Boolean, default: false },
     description: { type: String },
     skillsRequired: [{ type: String }],
 
@@ -23,4 +23,6 @@ const jobSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Job", jobSchema);
+const JobModel = mongoose.model("Job", jobSchema);
+
+module.exports = JobModel;

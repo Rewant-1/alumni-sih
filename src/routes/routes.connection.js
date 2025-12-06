@@ -7,5 +7,6 @@ router.post("/send-request", authenticateToken, checkRole("Student"), Connection
 router.post("/accept-request", authenticateToken, checkRole("Alumni"), ConnectionController.acceptRequest);
 router.post("/reject-request", authenticateToken, checkRole("Alumni"), ConnectionController.rejectRequest);
 router.get("/connections", authenticateToken, ConnectionController.getConnections);
+router.delete("/remove-connection", authenticateToken, ConnectionController.removeConnection);
 
 module.exports = router;

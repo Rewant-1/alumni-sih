@@ -114,15 +114,56 @@ const rejectRequest = async (req, res) => {
 
 const getConnections = async (req, res) => {
     try {
+        const { studentId, alumniId } = req.query;
         const { userId, userType } = req.user;
         const filter =
             userType === "Student"
                 ? { studentId: userId }
                 : { alumniId: userId };
+        if (studentId) {
+            filter.studentId = studentId;
+        }
+        if (alumniId) {
+            filter.alumniId = alumniId;
+        }
         const connections = await ConnectionModel.find(filter);
-        res.status(200).json(connections);
+        res.status(200).json({
+            success: true,
+            message: "Connections fetched successfully",
+            data: connections,
+        });
     } catch (error) {
         console.error("Error getting connections:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error.",
+        });
+    }
+};
+
+const removeConnection = async (req, res) => {
+    try {
+        const { connectionId } = req.body;
+        if (!connectionId) {
+            return res.status(400).json({
+                success: false,
+                message: "Connection ID is required.",
+            });
+        }
+        const connection = await ConnectionModel.findById(connectionId);
+        if (!connection) {
+            return res.status(404).json({
+                success: false,
+                message: "Connection not found.",
+            });
+        }
+        await ConnectionModel.findByIdAndDelete(connectionId);
+        res.status(200).json({
+            success: true,
+            message: "Connection removed successfully.",
+        });
+    } catch (error) {
+        console.error("Error removing connection:", error);
         res.status(500).json({
             success: false,
             message: "Internal server error.",
@@ -135,4 +176,5 @@ module.exports = {
     acceptRequest,
     rejectRequest,
     getConnections,
+    removeConnection,
 };
