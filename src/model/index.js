@@ -1,0 +1,36 @@
+// Central export for all models
+const UserModel = require('./model.user');
+const AlumniModel = require('./model.alumni');
+const StudentModel = require('./model.student');
+const AdminModel = require('./model.admin');
+const JobModel = require('./model.job');
+const JobApplicationModel = require('./model.jobApplication');
+const EventModel = require('./model.event');
+const ChatModel = require('./model.chat');
+const ConnectionModel = require('./model.connections');
+const PostModel = require('./model.post');
+const CampaignModel = require('./model.campaign');
+const DonationModel = require('./model.donation');
+const SuccessStoryModel = require('./model.successStory');
+const AlumniCardModel = require('./model.alumniCard');
+const NotificationModel = require('./model.notification');
+const ActivityModel = require('./model.activity');
+
+module.exports = {
+    UserModel,
+    AlumniModel,
+    StudentModel,
+    AdminModel,
+    JobModel,
+    JobApplicationModel,
+    EventModel,
+    ChatModel,
+    ConnectionModel,
+    PostModel,
+    CampaignModel,
+    DonationModel,
+    SuccessStoryModel,
+    AlumniCardModel,
+    NotificationModel,
+    ActivityModel
+};

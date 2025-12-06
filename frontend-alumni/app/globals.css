@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  --admin-nav-bg: #030e29;
+  --primary-color: #001145;
+  --primary-light: #001339;
+  --accent-color: #a5bcdc;
+  --card-bg: #e4f0ff;
+  --card-border: #dbeaff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: white;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Custom Animations */
+@keyframes spin-slow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInCentered {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 1.8s linear infinite;
+}
+
+.animate-fadeInCentered {
+  animation: fadeInCentered 0.5s ease-out forwards;
+}
+
+/* Tan Pearl Font Utility */
+.font-tan-pearl {
+  font-family: serif;
+  letter-spacing: 1px;
+}
