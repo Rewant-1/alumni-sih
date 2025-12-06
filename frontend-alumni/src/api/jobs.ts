@@ -221,92 +221,36 @@ const MOCK_APPLICATIONS: JobApplication[] = [
 
 // API Functions
 export const getAllJobs = async (params?: JobSearchParams): Promise<PaginatedResponse<Job>> => {
-  try {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Job>>>('/jobs', { params });
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching jobs:', error);
-    // Filter mock data based on params
-    let filtered = [...MOCK_JOBS];
-    if (params?.query) {
-      const query = params.query.toLowerCase();
-      filtered = filtered.filter(j => 
-        j.title.toLowerCase().includes(query) ||
-        j.company.toLowerCase().includes(query)
-      );
-    }
-    if (params?.type) {
-      filtered = filtered.filter(j => j.type === params.type);
-    }
-    if (params?.location) {
-      filtered = filtered.filter(j => j.location.toLowerCase().includes(params.location!.toLowerCase()));
-    }
-    return {
-      items: filtered,
-      total: filtered.length,
-      page: params?.page || 1,
-      limit: params?.limit || 10,
-      totalPages: 1,
-    };
-  }
+  const response = await apiClient.get<ApiResponse<PaginatedResponse<Job>>>('/jobs', { params });
+  return response.data.data;
 };
 
 export const getJob = async (id: string): Promise<Job> => {
-  try {
-    const response = await apiClient.get<ApiResponse<Job>>(`/jobs/${id}`);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching job:', error);
-    return MOCK_JOBS.find(j => j.id === id) || MOCK_JOBS[0];
-  }
+  const response = await apiClient.get<ApiResponse<Job>>(`/jobs/${id}`);
+  return response.data.data;
 };
 
 export const createJob = async (data: CreateJobData): Promise<Job> => {
-  try {
-    const response = await apiClient.post<ApiResponse<Job>>('/jobs', data);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error creating job:', error);
-    throw error;
-  }
+  const response = await apiClient.post<ApiResponse<Job>>('/jobs', data);
+  return response.data.data;
 };
 
 export const updateJob = async (id: string, data: Partial<CreateJobData>): Promise<Job> => {
-  try {
-    const response = await apiClient.put<ApiResponse<Job>>(`/jobs/${id}`, data);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error updating job:', error);
-    throw error;
-  }
+  const response = await apiClient.put<ApiResponse<Job>>(`/jobs/${id}`, data);
+  return response.data.data;
 };
 
 export const deleteJob = async (id: string): Promise<void> => {
-  try {
-    await apiClient.delete(`/jobs/${id}`);
-  } catch (error) {
-    console.error('Error deleting job:', error);
-    throw error;
-  }
-};
+  await apiClient.delete(`/jobs/${id}`);
+};;
 
-export const applyToJob = async (id: string, data: { resumeUrl: string; coverLetter?: string }): Promise<JobApplication> => {
-  try {
-    const response = await apiClient.post<ApiResponse<JobApplication>>(`/jobs/${id}/apply`, data);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error applying to job:', error);
-    throw error;
-  }
+export const applyToJob = async (id: string, data: CreateApplicationData): Promise<JobApplication> => {
+  const response = await apiClient.post<ApiResponse<JobApplication>>(`/jobs/${id}/apply`, data);
+  return response.data.data;
 };
 
 export const bookmarkJob = async (id: string): Promise<void> => {
-  try {
-    await apiClient.post(`/jobs/${id}/bookmark`);
-  } catch (error) {
-    console.error('Error bookmarking job:', error);
-    throw error;
-  }
+  await apiClient.post(`/jobs/${id}/bookmark`);
 };
 
 export const getMyJobPostings = async (): Promise<Job[]> => {

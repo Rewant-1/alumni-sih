@@ -179,111 +179,46 @@ const MOCK_EVENTS: Event[] = [
 
 // API Functions
 export const getAllEvents = async (params?: EventSearchParams): Promise<PaginatedResponse<Event>> => {
-  try {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Event>>>('/events', { params });
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching events:', error);
-    let filtered = [...MOCK_EVENTS];
-    if (params?.category) {
-      filtered = filtered.filter(e => e.category === params.category);
-    }
-    if (params?.status) {
-      filtered = filtered.filter(e => e.status === params.status);
-    }
-    if (params?.query) {
-      const query = params.query.toLowerCase();
-      filtered = filtered.filter(e => 
-        e.title.toLowerCase().includes(query) ||
-        e.description.toLowerCase().includes(query)
-      );
-    }
-    return {
-      items: filtered,
-      total: filtered.length,
-      page: params?.page || 1,
-      limit: params?.limit || 10,
-      totalPages: 1,
-    };
-  }
+  const response = await apiClient.get<ApiResponse<PaginatedResponse<Event>>>('/events', { params });
+  return response.data.data;
 };
 
 export const getEvent = async (id: string): Promise<Event> => {
-  try {
-    const response = await apiClient.get<ApiResponse<Event>>(`/events/${id}`);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching event:', error);
-    return MOCK_EVENTS.find(e => e.id === id) || MOCK_EVENTS[0];
-  }
+  const response = await apiClient.get<ApiResponse<Event>>(`/events/${id}`);
+  return response.data.data;
 };
 
 export const createEvent = async (data: CreateEventData): Promise<Event> => {
-  try {
-    const response = await apiClient.post<ApiResponse<Event>>('/events', data);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error creating event:', error);
-    throw error;
-  }
+  const response = await apiClient.post<ApiResponse<Event>>('/events', data);
+  return response.data.data;
 };
 
 export const updateEvent = async (id: string, data: Partial<CreateEventData>): Promise<Event> => {
-  try {
-    const response = await apiClient.put<ApiResponse<Event>>(`/events/${id}`, data);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error updating event:', error);
-    throw error;
-  }
+  const response = await apiClient.put<ApiResponse<Event>>(`/events/${id}`, data);
+  return response.data.data;
 };
 
 export const deleteEvent = async (id: string): Promise<void> => {
-  try {
-    await apiClient.delete(`/events/${id}`);
-  } catch (error) {
-    console.error('Error deleting event:', error);
-    throw error;
-  }
+  await apiClient.delete(`/events/${id}`);
 };
 
 export const registerForEvent = async (id: string): Promise<EventRegistration> => {
-  try {
-    const response = await apiClient.post<ApiResponse<EventRegistration>>(`/events/${id}/register`);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error registering for event:', error);
-    throw error;
-  }
+  const response = await apiClient.post<ApiResponse<EventRegistration>>(`/events/${id}/register`);
+  return response.data.data;
 };
 
 export const cancelRegistration = async (id: string): Promise<void> => {
-  try {
-    await apiClient.delete(`/events/${id}/register`);
-  } catch (error) {
-    console.error('Error cancelling registration:', error);
-    throw error;
-  }
+  await apiClient.delete(`/events/${id}/register`);
 };
 
 export const getMyEvents = async (): Promise<Event[]> => {
-  try {
-    const response = await apiClient.get<ApiResponse<Event[]>>('/events/my-events');
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching my events:', error);
-    return MOCK_EVENTS.slice(0, 2).map(e => ({ ...e, isRegistered: true }));
-  }
+  const response = await apiClient.get<ApiResponse<Event[]>>('/events/my-events');
+  return response.data.data;
 };
 
 export const getEventAttendees = async (id: string): Promise<{ id: string; name: string; avatarUrl?: string }[]> => {
-  try {
-    const response = await apiClient.get<ApiResponse<{ id: string; name: string; avatarUrl?: string }[]>>(
-      `/events/${id}/attendees`
-    );
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching event attendees:', error);
-    return [];
-  }
+  const response = await apiClient.get<ApiResponse<{ id: string; name: string; avatarUrl?: string }[]>>(
+    `/events/${id}/attendees`
+  );
+  return response.data.data;
 };

@@ -81,18 +81,39 @@ export default function AlumniProfile() {
                 // For now, let's assume verifyAlumni returns { user: { id: ... } } or similar.
                 // If not, we might fail here.
                 const authData = await verifyAlumni();
-                // console.log("Auth Data:", authData);
-                
-                // ADJUST THIS based on actual backend response structure
-                const userId = authData?.user?.id || authData?.id || authData?._id; 
 
-                if (!userId) {
-                    throw new Error("User ID not found in verification");
+                // Normalize different response shapes. `verifyAlumni` may return:
+                // - { user, alumni }
+                // - { data: { user, alumni } }
+                // - { id | _id } (legacy)
+                const payload = authData?.data ?? authData ?? {};
+                const userObj = payload?.user ?? payload;
+                const alumniObj = payload?.alumni ?? payload?.user?.alumni ?? null;
+
+                // If backend already returned the alumni profile, use it.
+                if (alumniObj && typeof alumniObj === 'object') {
+                    setData(alumniObj as any);
+                    return;
                 }
 
-                // 2. Fetch Profile Details
-                const profileData = await getAlumniProfile(userId);
-                setData(profileData);
+                // Try to extract a user id from known places.
+                const userId = userObj?.id || userObj?._id || payload?.id || payload?._id;
+
+                if (userId) {
+                    const profileData = await getAlumniProfile(userId);
+                    setData(profileData);
+                    return;
+                }
+
+                // Last resort: call protected /alumni/me endpoint which returns the profile.
+                try {
+                    const myProfile = await (await import('@/src/api/alumni')).getMyProfile();
+                    setData(myProfile as any);
+                    return;
+                } catch (e) {
+                    // fall through to error handler below
+                    console.error('Fallback getMyProfile failed:', e);
+                }
             } catch (err) {
                 console.error(err);
                 setError('Failed to load profile. Please log in again.');

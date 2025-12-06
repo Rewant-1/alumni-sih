@@ -19,6 +19,8 @@ const successStoryRoutes = require('./routes.successStory.js');
 const alumniCardRoutes = require('./routes.alumniCard.js');
 const notificationRoutes = require('./routes.notification.js');
 const activityRoutes = require('./routes.activity.js');
+const surveyRoutes = require('./routes.survey.js');
+const newsletterRoutes = require('./routes.newsletter.js');
 
 const v1 = express.Router();
 
@@ -41,5 +43,7 @@ v1.use('/success-stories', successStoryRoutes);
 v1.use('/alumni-card', alumniCardRoutes);
 v1.use('/notifications', notificationRoutes);
 v1.use('/activities', activityRoutes);
+v1.use('/surveys', surveyRoutes);
+v1.use('/newsletters', newsletterRoutes);
 
 module.exports = v1;

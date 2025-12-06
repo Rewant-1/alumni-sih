@@ -3,6 +3,14 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const UserModel = require("../model/model.user");
 const AlumniModel = require("../model/model.alumni");
+const {
+    sendSuccess,
+    sendError,
+    sendBadRequest,
+    sendUnauthorized,
+    sendForbidden,
+    sendNotFound,
+} = require("../../utils/response");
 
 const registerAlumni = async (req, res) => {
     const { name, email, password, graduationYear, degreeUrl, collegeId } =
@@ -68,48 +76,28 @@ const registerAlumni = async (req, res) => {
 const login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        return res
-            .status(400)
-            .json({
-                success: false,
-                error: "Email and password are required.",
-            });
+        return sendBadRequest(res, "Email and password are required.");
     }
 
     try {
         const user = await UserModel.findOne({ email });
         if (!user) {
-            return res
-                .status(401)
-                .json({ success: false, error: "Invalid email or password." });
+            return sendUnauthorized(res, "Invalid email or password.");
         }
+        
         if (user.userType === "Alumni") {
             if (!user.profileDetails) {
-                return res
-                    .status(403)
-                    .json({
-                        success: false,
-                        error: "Alumni profile not found.",
-                    });
+                return sendForbidden(res, "Alumni profile not found.");
             }
             const alumni = await AlumniModel.findById(user.profileDetails);
             if (!alumni.verified) {
-                return res
-                    .status(403)
-                    .json({
-                        success: false,
-                        error: "Alumni account not verified.",
-                    });
+                return sendForbidden(res, "Alumni account not verified.");
             }
         }
-        const isPasswordValid = await bcrypt.compare(
-            password,
-            user.passwordHash
-        );
+        
+        const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
         if (!isPasswordValid) {
-            return res
-                .status(401)
-                .json({ success: false, error: "Invalid email or password." });
+            return sendUnauthorized(res, "Invalid email or password.");
         }
 
         const token = jwt.sign(
@@ -120,17 +108,11 @@ const login = async (req, res) => {
             },
             process.env.JWT_SECRET
         );
-        res.status(200).json({
-            success: true,
-            data: { token },
-            message: "Login successful.",
-        });
+        
+        return sendSuccess(res, { token }, "Login successful.");
     } catch (error) {
         console.error("Error logging in:", error);
-        res.status(500).json({
-            success: false,
-            error: "Internal server error.",
-        });
+        return sendError(res, "Internal server error.", 500, error.message);
     }
 };
 
@@ -162,8 +144,30 @@ const verifyAlumni = async (req, res) => {
     }
 };
 
+const getMe = async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'User not authenticated.' });
+        }
+
+        const user = await UserModel.findById(userId).select('-passwordHash');
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+
+        const alumni = user.profileDetails ? await AlumniModel.findById(user.profileDetails) : null;
+
+        return sendSuccess(res, { user, alumni }, 'User fetched successfully.');
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        return sendError(res, 'Internal server error.', 500, error.message);
+    }
+};
+
 module.exports = {
     registerAlumni,
     login,
     verifyAlumni,
+    getMe,
 };

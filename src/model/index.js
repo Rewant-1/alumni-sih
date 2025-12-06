@@ -15,6 +15,9 @@ const SuccessStoryModel = require('./model.successStory');
 const AlumniCardModel = require('./model.alumniCard');
 const NotificationModel = require('./model.notification');
 const ActivityModel = require('./model.activity');
+const SurveyModel = require('./model.survey');
+const SurveyResponseModel = require('./model.surveyResponse');
+const NewsletterModel = require('./model.newsletter');
 
 module.exports = {
     UserModel,
@@ -32,5 +35,8 @@ module.exports = {
     SuccessStoryModel,
     AlumniCardModel,
     NotificationModel,
-    ActivityModel
+    ActivityModel,
+    SurveyModel,
+    SurveyResponseModel,
+    NewsletterModel
 };

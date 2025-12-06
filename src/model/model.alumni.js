@@ -34,11 +34,21 @@ const alumniSchema = new mongoose.Schema({
         type: String,
         maxLength: 100,
     },
-    department: {
-        type: String,
-    },
+
+    // Academic details (unified with frontend-admin)
     degree: {
         type: String,
+        enum: ["B.Tech", "M.Tech", "MBA", "BBA", "B.Sc", "M.Sc", "Ph.D", "Other"],
+        default: "B.Tech",
+    },
+    department: {
+        type: String,
+        enum: ["Computer Science", "Electronics", "Mechanical", "Civil", "Chemical", "Electrical", "IT", "Other"],
+        default: "Computer Science",
+    },
+    enrollmentNumber: {
+        type: String,
+        trim: true,
     },
 
     // Journey Timeline
@@ -55,12 +65,30 @@ const alumniSchema = new mongoose.Schema({
         icon: String
     }],
 
-    // Social Links
+    // Social Links (nested object)
     socialLinks: {
         linkedin: String,
         github: String,
         twitter: String,
         portfolio: String
+    },
+
+    // Top-level social links (from frontend-admin for backward compatibility)
+    linkedIn: {
+        type: String,
+        trim: true,
+    },
+    github: {
+        type: String,
+        trim: true,
+    },
+    twitter: {
+        type: String,
+        trim: true,
+    },
+    portfolio: {
+        type: String,
+        trim: true,
     },
 
     // Experience
@@ -104,18 +132,43 @@ const alumniSchema = new mongoose.Schema({
         description: String
     }],
 
+    // Employment details (from frontend-admin for backward compatibility)
+    employmentStatus: {
+        type: String,
+        enum: ["employed", "self-employed", "freelancer", "student", "unemployed", "retired"],
+        default: "employed",
+    },
+    currentCompany: {
+        type: String,
+        trim: true,
+    },
+    designation: {
+        type: String,
+        trim: true,
+    },
+    industry: {
+        type: String,
+        trim: true,
+    },
+
     // Location for map view
     location: {
-        city: String,
-        state: String,
+        city: { type: String, trim: true },
+        state: { type: String, trim: true },
         country: {
             type: String,
             default: 'India'
         },
         coordinates: {
-            lat: Number,
-            lng: Number
+            lat: { type: Number },
+            lng: { type: Number }
         }
+    },
+
+    // Contact
+    phone: {
+        type: String,
+        trim: true,
     },
 
     // Privacy settings
@@ -144,6 +197,12 @@ const alumniSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    profileCompletion: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100,
+    },
 
     createdAt: {
         type: Date,
@@ -161,13 +220,15 @@ alumniSchema.pre('save', function (next) {
     next();
 });
 
-// Index for search
-alumniSchema.index({
-    'location.city': 1,
-    'location.state': 1,
-    department: 1,
-    graduationYear: 1
-});
+// Indexes for performance optimization
+alumniSchema.index({ userId: 1 }); // Unique user lookup
+alumniSchema.index({ verified: 1 }); // Filter verified alumni
+alumniSchema.index({ graduationYear: 1 }); // Filter by batch
+alumniSchema.index({ department: 1 }); // Filter by department
+alumniSchema.index({ graduationYear: 1, department: 1 }); // Compound index
+alumniSchema.index({ 'location.city': 1, 'location.state': 1 }); // Search by location
+alumniSchema.index({ skills: 1 }); // Search by skills
+alumniSchema.index({ verified: 1, graduationYear: -1 }); // Verified + recent first
 
 const AlumniModel = mongoose.model("Alumni", alumniSchema);
 

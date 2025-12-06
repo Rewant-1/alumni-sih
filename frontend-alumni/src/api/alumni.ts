@@ -190,62 +190,26 @@ const MOCK_ALUMNI_LIST: AlumniProfile[] = [
 
 // API Functions
 export const getAlumniProfile = async (id: string): Promise<AlumniProfile> => {
-  try {
-    const response = await apiClient.get<ApiResponse<AlumniProfile>>(`/alumni/${id}`);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching alumni profile:', error);
-    // Return mock data for development
-    return MOCK_ALUMNI_LIST.find(a => a.id === id) || MOCK_PROFILE;
-  }
+  const response = await apiClient.get<ApiResponse<AlumniProfile>>(`/alumni/${id}`);
+  return response.data.data;
 };
 
 export const getMyProfile = async (): Promise<AlumniProfile> => {
-  try {
-    const response = await apiClient.get<ApiResponse<AlumniProfile>>('/alumni/me');
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching my profile:', error);
-    return MOCK_PROFILE;
-  }
+  const response = await apiClient.get<ApiResponse<AlumniProfile>>('/alumni/me');
+  return response.data.data;
 };
 
 export const updateAlumniProfile = async (id: string, data: Partial<AlumniProfile>): Promise<AlumniProfile> => {
-  try {
-    const response = await apiClient.put<ApiResponse<AlumniProfile>>(`/alumni/${id}`, data);
-    return response.data.data;
-  } catch (error) {
-    console.error('Error updating alumni profile:', error);
-    throw error;
-  }
+  const response = await apiClient.put<ApiResponse<AlumniProfile>>(`/alumni/${id}`, data);
+  return response.data.data;
 };
 
 export const getAlumniDirectory = async (params?: AlumniSearchParams): Promise<PaginatedResponse<AlumniProfile>> => {
-  try {
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<AlumniProfile>>>('/alumni', { params });
-    return response.data.data;
-  } catch (error) {
-    console.error('Error fetching alumni directory:', error);
-    // Return mock data for development
-    return {
-      items: MOCK_ALUMNI_LIST,
-      total: MOCK_ALUMNI_LIST.length,
-      page: 1,
-      limit: 10,
-      totalPages: 1,
-    };
-  }
+  const response = await apiClient.get<ApiResponse<PaginatedResponse<AlumniProfile>>>('/alumni', { params });
+  return response.data.data;
 };
 
 export const searchAlumni = async (query: string): Promise<AlumniProfile[]> => {
-  try {
-    const response = await apiClient.get<ApiResponse<AlumniProfile[]>>('/alumni/search', { params: { query } });
-    return response.data.data;
-  } catch (error) {
-    console.error('Error searching alumni:', error);
-    return MOCK_ALUMNI_LIST.filter(a => 
-      a.name.toLowerCase().includes(query.toLowerCase()) ||
-      a.currentCompany?.toLowerCase().includes(query.toLowerCase())
-    );
-  }
+  const response = await apiClient.get<ApiResponse<AlumniProfile[]>>('/alumni/search', { params: { query } });
+  return response.data.data;
 };

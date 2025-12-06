@@ -62,6 +62,8 @@ const jobSchema = new mongoose.Schema({
     maxExperience: {
         type: Number
     },
+
+    // Salary - support both formats
     salaryRange: {
         min: Number,
         max: Number,
@@ -79,6 +81,12 @@ const jobSchema = new mongoose.Schema({
             default: false
         }
     },
+    // Legacy salary format for backward compatibility
+    salary: {
+        min: { type: Number },
+        max: { type: Number },
+        currency: { type: String, default: "INR" },
+    },
 
     // Opening status
     isOpen: {
@@ -91,15 +99,18 @@ const jobSchema = new mongoose.Schema({
         default: false
     },
 
-    // Deadline
+    // Deadline - support both field names
     applicationDeadline: {
+        type: Date
+    },
+    deadline: {
         type: Date
     },
 
     // Approval workflow
     status: {
         type: String,
-        enum: ['draft', 'pending', 'approved', 'rejected', 'closed', 'filled'],
+        enum: ['draft', 'pending', 'approved', 'rejected', 'open', 'closed', 'filled'],
         default: 'draft'
     },
     approvedBy: {
@@ -109,7 +120,7 @@ const jobSchema = new mongoose.Schema({
     approvedAt: Date,
     rejectionReason: String,
 
-    // Applications
+    // Applications - support both formats
     applications: [{
         applicantId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -124,7 +135,7 @@ const jobSchema = new mongoose.Schema({
         coverLetter: String,
         status: {
             type: String,
-            enum: ['applied', 'viewed', 'shortlisted', 'interview', 'offered', 'hired', 'rejected'],
+            enum: ['applied', 'viewed', 'shortlisted', 'interview', 'offered', 'hired', 'rejected', 'under review', 'interview scheduled'],
             default: 'applied'
         },
         statusHistory: [{
@@ -145,6 +156,20 @@ const jobSchema = new mongoose.Schema({
             default: Date.now
         }
     }],
+    // Legacy applicants format for backward compatibility
+    applicants: [
+        {
+            student: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+            appliedAt: { type: Date, default: Date.now },
+            status: {
+                type: String,
+                enum: ["applied", "under review", "interview scheduled", "offered", "rejected"],
+                default: "applied",
+            },
+            coverLetter: { type: String },
+            resume: { type: String },
+        },
+    ],
 
     // Referral tracking
     referrals: [{
@@ -181,11 +206,15 @@ const jobSchema = new mongoose.Schema({
         default: 0
     },
 
-    // Posted by
+    // Posted by - support both references
     postedBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Alumni",
+        ref: "User",
         required: true,
+    },
+    postedByAlumni: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Alumni"
     },
     postedByUser: {
         type: mongoose.Schema.Types.ObjectId,
@@ -231,7 +260,8 @@ jobSchema.pre('save', function (next) {
     }
 
     // Auto-close if deadline passed
-    if (this.applicationDeadline && new Date() > this.applicationDeadline && this.isOpen) {
+    const deadline = this.applicationDeadline || this.deadline;
+    if (deadline && new Date() > deadline && this.isOpen) {
         this.isOpen = false;
         this.status = 'closed';
     }
@@ -244,6 +274,7 @@ jobSchema.index({ status: 1, isOpen: 1, createdAt: -1 });
 jobSchema.index({ postedBy: 1, status: 1 });
 jobSchema.index({ 'applications.applicantId': 1 });
 jobSchema.index({ type: 1, experienceLevel: 1 });
+jobSchema.index({ title: 'text', company: 'text', description: 'text' });
 
 const JobModel = mongoose.model("Job", jobSchema);
 

@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { Toaster } from "react-hot-toast";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { SocketProvider } from "@/lib/socket-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col bg-[#f8fafc]">
-        {children}
+        <ErrorBoundary>
+          <SocketProvider>
+            <Toaster />
+            {children}
+          </SocketProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

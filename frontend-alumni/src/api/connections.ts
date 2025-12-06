@@ -66,26 +66,21 @@ const MOCK_SUGGESTIONS: ConnectionSuggestion[] = [
 // /connections/send-request - send request
 // /connections/accept-request, /connections/reject-request
 export const getConnections = async (params?: PaginationParams): Promise<PaginatedResponse<Connection>> => {
-  try {
-    // Backend route: GET /connections/connections
-    const response = await apiClient.get<ApiResponse<PaginatedResponse<Connection>>>('/connections/connections', { params });
-    return response.data.data;
-  } catch {
-    return { items: MOCK_CONNECTIONS, total: MOCK_CONNECTIONS.length, page: 1, limit: 10, totalPages: 1 };
-  }
+  // Backend route: GET /connections/connections
+  const response = await apiClient.get<ApiResponse<PaginatedResponse<Connection>>>('/connections/connections', { params });
+  return response.data.data;
 };
 
 export const getPendingRequests = async (): Promise<ConnectionRequest[]> => {
-  try {
-    // No specific backend route for pending - returns mock for now
-    const response = await apiClient.get<ApiResponse<ConnectionRequest[]>>('/connections/connections');
-    return response.data.data || MOCK_REQUESTS;
-  } catch { return MOCK_REQUESTS; }
+  // Backend route: GET /connections/pending (needs implementation)
+  const response = await apiClient.get<ApiResponse<ConnectionRequest[]>>('/connections/pending');
+  return response.data.data;
 };
 
 export const getConnectionSuggestions = async (): Promise<ConnectionSuggestion[]> => {
-  // No backend route for suggestions - use mock data
-  return MOCK_SUGGESTIONS;
+  // Backend route: GET /alumni/suggestions (AI-powered)
+  const response = await apiClient.get<ApiResponse<ConnectionSuggestion[]>>('/alumni/suggestions');
+  return response.data.data;
 };
 
 export const sendConnectionRequest = async (userId: string, message?: string): Promise<ConnectionRequest> => {

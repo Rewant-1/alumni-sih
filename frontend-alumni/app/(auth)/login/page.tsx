@@ -19,11 +19,10 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
-      console.log("Logged in!");
-      // router.push('/profile');
-      window.location.href = '/profile'; // Temporary force redirect
-    } catch (err) {
-      setError('Invalid email or password');
+      window.location.href = '/profile';
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || err?.response?.data?.error || 'Invalid email or password';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
