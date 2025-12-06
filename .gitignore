@@ -1,2 +1,4 @@
 .env
 node_modules
+src/mock
+src/seed.js

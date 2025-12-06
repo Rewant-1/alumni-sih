@@ -21,6 +21,28 @@ const alumniSchema = new mongoose.Schema({
     skills: {
         type: [String],
     },
+    designation: {
+        type: String,
+    },
+    company: {
+        type: String,
+    },
+    location: {
+        type: String,
+    },
+    phone: {
+        type: String,
+    },
+    linkedin: {
+        type: String,
+    },
+    branch: {
+        type: String,
+    },
+    completion_percent: {
+        type: Number,
+        default: 0,
+    },
 });
 
 const AlumniModel = mongoose.model("Alumni", alumniSchema);
