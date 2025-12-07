@@ -1,43 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Clock, Users, Plus, Search, Filter } from 'lucide-react';
-
-const MOCK_EVENTS = [
-  {
-    _id: '1',
-    title: 'Alumni Annual Reunion 2025',
-    date: '2025-01-15T18:00:00',
-    location: 'Main Campus Auditorium',
-    description: 'Join us for the annual alumni reunion. Reconnect with old friends and make new connections.',
-    attendees: 156,
-    image: '/du.png',
-    category: 'Reunion',
-  },
-  {
-    _id: '2',
-    title: 'Tech Talk: AI in 2025',
-    date: '2025-01-20T15:00:00',
-    location: 'Online (Zoom)',
-    description: 'Industry experts discuss the future of AI and its impact on various sectors.',
-    attendees: 89,
-    image: '/fot_blue.png',
-    category: 'Webinar',
-  },
-  {
-    _id: '3',
-    title: 'Startup Networking Night',
-    date: '2025-02-05T19:00:00',
-    location: 'Innovation Hub, Delhi',
-    description: 'Connect with alumni entrepreneurs and investors. Pitch your ideas!',
-    attendees: 45,
-    image: '/fot_building.png',
-    category: 'Networking',
-  },
-];
+import { getAllEvents } from '@/src/api/events';
 
 export default function EventsPage() {
-  const [events, setEvents] = useState(MOCK_EVENTS);
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
   const formatDate = (dateStr: string) => {
@@ -83,6 +52,15 @@ export default function EventsPage() {
       </div>
 
       {/* Events Grid */}
+      {loading ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading events...</p>
+        </div>
+      ) : events.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No events found.</p>
+        </div>
+      ) : null}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {events
           .filter(e => filter === 'all' || e.category === filter)

@@ -44,21 +44,7 @@ export interface ConnectionSuggestion {
   reason: string;
 }
 
-// Mock Data
-const MOCK_CONNECTIONS: Connection[] = [
-  { id: '1', user: { id: '2', name: 'Priya Patel', email: 'priya@example.com', currentRole: 'Product Manager', currentCompany: 'Amazon', gradYear: '2017' }, connectedAt: '2025-06-15T10:00:00Z' },
-  { id: '2', user: { id: '3', name: 'Arjun Singh', email: 'arjun@example.com', currentRole: 'Data Scientist', currentCompany: 'Flipkart', gradYear: '2018' }, connectedAt: '2025-05-20T10:00:00Z' },
-  { id: '3', user: { id: '4', name: 'Sneha Reddy', email: 'sneha@example.com', currentRole: 'UX Designer', currentCompany: 'Swiggy', gradYear: '2019' }, connectedAt: '2025-07-10T10:00:00Z' },
-];
-
-const MOCK_REQUESTS: ConnectionRequest[] = [
-  { id: '1', from: { id: '7', name: 'Karan Mehta', email: 'karan@example.com', currentRole: 'Developer', currentCompany: 'Paytm', gradYear: '2021' }, to: { id: '1', name: 'User' }, message: 'Would love to connect!', status: 'pending', createdAt: '2025-12-05T10:00:00Z' },
-];
-
-const MOCK_SUGGESTIONS: ConnectionSuggestion[] = [
-  { id: '9', name: 'Rohit Kumar', email: 'rohit@example.com', currentRole: 'Tech Lead', currentCompany: 'Microsoft', gradYear: '2016', mutualConnections: 5, reason: 'Same batch' },
-  { id: '10', name: 'Divya Agarwal', email: 'divya@example.com', currentRole: 'Designer', currentCompany: 'Uber', gradYear: '2017', mutualConnections: 3, reason: 'Similar interests' },
-];
+// API Functions (mock data removed)
 
 // API Functions
 // Note: Backend routes are under /connections prefix

@@ -1,61 +1,56 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Heart, MessageCircle, Share2, MoreHorizontal, Send, ImageIcon, Smile } from 'lucide-react';
-
-const MOCK_POSTS = [
-  {
-    _id: '1',
-    author: {
-      name: 'Rahul Sharma',
-      avatar: '/profile.jpeg',
-      title: 'Software Engineer at Google',
-    },
-    content: 'Excited to announce that I just completed my 5th year at Google! The journey has been incredible. Grateful to all my mentors and colleagues. 🎉',
-    timestamp: '2 hours ago',
-    likes: 156,
-    comments: 23,
-    isLiked: false,
-  },
-  {
-    _id: '2',
-    author: {
-      name: 'Priya Patel',
-      avatar: '/profile.jpeg',
-      title: 'Product Manager at Microsoft',
-    },
-    content: 'Looking for talented software engineers to join our team at Microsoft! If you\'re interested or know someone who might be, please reach out. Great opportunity for FoT alumni.',
-    timestamp: '5 hours ago',
-    likes: 89,
-    comments: 45,
-    isLiked: true,
-  },
-  {
-    _id: '3',
-    author: {
-      name: 'Amit Kumar',
-      avatar: '/profile.jpeg',
-      title: 'Founder & CEO at TechStartup',
-    },
-    content: 'Just closed our Series A funding round! 🚀 Thank you to everyone who believed in our vision. Special shoutout to my batch mates who have been incredibly supportive throughout this journey.',
-    timestamp: 'Yesterday',
-    likes: 312,
-    comments: 67,
-    isLiked: false,
-  },
-];
+import { getAllPosts, likePost, unlikePost, createPost } from '@/src/api/posts';
 
 export default function FeedPage() {
-  const [posts, setPosts] = useState(MOCK_POSTS);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newPost, setNewPost] = useState('');
 
-  const handleLike = (postId: string) => {
-    setPosts(posts.map(post => 
-      post._id === postId 
-        ? { ...post, isLiked: !post.isLiked, likes: post.isLiked ? post.likes - 1 : post.likes + 1 }
-        : post
-    ));
+  const handleLike = async (postId: string) => {
+    const post = posts.find(p => p._id === postId);
+    if (!post) return;
+
+    try {
+      if (post.isLiked) {
+        await unlikePost(postId);
+      } else {
+        await likePost(postId);
+      }
+      setPosts(posts.map(p => 
+        p._id === postId 
+          ? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 }
+          : p
+      ));
+    } catch (error) {
+      console.error('Error liking post:', error);
+    }
+  };
+
+  const handleCreatePost = async () => {
+    if (!newPost.trim()) return;
+    try {
+      const post = await createPost(newPost);
+      setPosts([{
+        _id: post._id,
+        author: {
+          name: post.author.name,
+          avatar: post.author.avatar || '/profile.jpeg',
+          title: post.author.title || 'Alumni',
+        },
+        content: post.content,
+        timestamp: 'Just now',
+        likes: 0,
+        comments: 0,
+        isLiked: false,
+      }, ...posts]);
+      setNewPost('');
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
   };
 
   return (
@@ -76,14 +71,14 @@ export default function FeedPage() {
             />
             <div className="flex items-center justify-between mt-4">
               <div className="flex gap-2">
-                <button className="p-2 text-gray-400 hover:text-[#001145] hover:bg-gray-100 rounded-lg transition-colors">
+                <button className="p-2 text-gray-400 hover:text-[#001145] hover:bg-gray-100 rounded-lg transition-colors" title="Add image">
                   <ImageIcon size={20} />
                 </button>
-                <button className="p-2 text-gray-400 hover:text-[#001145] hover:bg-gray-100 rounded-lg transition-colors">
+                <button className="p-2 text-gray-400 hover:text-[#001145] hover:bg-gray-100 rounded-lg transition-colors" title="Add emoji">
                   <Smile size={20} />
                 </button>
               </div>
-              <button className="flex items-center gap-2 bg-[#001145] text-white px-6 py-2 rounded-full font-medium hover:bg-[#001339] transition-colors">
+              <button onClick={handleCreatePost} disabled={!newPost.trim()} className="flex items-center gap-2 bg-[#001145] text-white px-6 py-2 rounded-full font-medium hover:bg-[#001339] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 <Send size={16} />
                 Post
               </button>
@@ -93,6 +88,15 @@ export default function FeedPage() {
       </div>
 
       {/* Posts */}
+      {loading ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading posts...</p>
+        </div>
+      ) : posts.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No posts yet. Be the first to post!</p>
+        </div>
+      ) : null}
       {posts.map((post) => (
         <div key={post._id} className="bg-white rounded-2xl p-6 border border-gray-100">
           {/* Author */}
@@ -107,7 +111,7 @@ export default function FeedPage() {
                 <p className="text-xs text-gray-400">{post.timestamp}</p>
               </div>
             </div>
-            <button className="p-2 text-gray-400 hover:text-[#001145] hover:bg-gray-100 rounded-lg transition-colors">
+            <button className="p-2 text-gray-400 hover:text-[#001145] hover:bg-gray-100 rounded-lg transition-colors" title="More options">
               <MoreHorizontal size={20} />
             </button>
           </div>

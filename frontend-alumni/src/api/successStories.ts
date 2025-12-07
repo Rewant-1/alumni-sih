@@ -22,11 +22,7 @@ export interface CreateStoryData {
   image?: string;
 }
 
-const MOCK_STORIES: SuccessStory[] = [
-  { id: '1', title: 'From Campus to Unicorn: My Startup Journey', content: 'Full story content here...', excerpt: 'How I built a billion-dollar company after graduating from Delhi University...', category: 'Entrepreneurship', author: { id: '1', name: 'Vikram Malhotra', gradYear: '2015', currentRole: 'Founder & CEO' }, likes: 234, isFeatured: true, status: 'published', createdAt: '2025-11-15T10:00:00Z' },
-  { id: '2', title: 'Breaking Barriers in AI Research', content: 'Full story content here...', excerpt: 'My journey from being a curious student to leading AI research at a top lab...', category: 'Research', author: { id: '2', name: 'Priya Patel', gradYear: '2017', currentRole: 'Research Scientist' }, likes: 156, isFeatured: true, status: 'published', createdAt: '2025-10-20T10:00:00Z' },
-  { id: '3', title: 'Building Schools in Rural India', content: 'Full story content here...', excerpt: 'How our alumni group has built 50+ schools across rural India...', category: 'Social Impact', author: { id: '3', name: 'Ananya Sharma', gradYear: '2018', currentRole: 'NGO Director' }, likes: 312, isFeatured: false, status: 'published', createdAt: '2025-09-10T10:00:00Z' },
-];
+// Mock data removed - using real backend API
 
 // Transform backend story to frontend format
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,19 +71,15 @@ export const getSuccessStories = async (params?: PaginationParams & { category?:
       limit: pagination?.limit || 10,
       totalPages: pagination?.pages || 1,
     };
-  } catch {
-    let filtered = [...MOCK_STORIES];
-    if (params?.category) filtered = filtered.filter(s => s.category === params.category);
-    if (params?.featured) filtered = filtered.filter(s => s.isFeatured);
-    return { items: filtered, total: filtered.length, page: 1, limit: 10, totalPages: 1 };
+  } catch (error) {
+    console.error('Error fetching success stories:', error);
+    throw error;
   }
 };
 
 export const getSuccessStory = async (id: string): Promise<SuccessStory> => {
-  try {
-    const response = await apiClient.get<ApiResponse<SuccessStory>>(`/success-stories/${id}`);
-    return response.data.data;
-  } catch { return MOCK_STORIES.find(s => s.id === id) || MOCK_STORIES[0]; }
+  const response = await apiClient.get<ApiResponse<SuccessStory>>(`/success-stories/${id}`);
+  return response.data.data;
 };
 
 export const submitSuccessStory = async (data: CreateStoryData): Promise<SuccessStory> => {

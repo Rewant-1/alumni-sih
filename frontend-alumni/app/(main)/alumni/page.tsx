@@ -1,80 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Search, Filter, UserPlus, MapPin, Briefcase, GraduationCap, Mail } from 'lucide-react';
-
-const MOCK_ALUMNI = [
-  {
-    _id: '1',
-    name: 'Rahul Sharma',
-    avatar: '/profile.jpeg',
-    title: 'Senior Software Engineer',
-    company: 'Google',
-    location: 'Bangalore',
-    batch: '2020',
-    department: 'Computer Science',
-    isConnected: true,
-  },
-  {
-    _id: '2',
-    name: 'Priya Patel',
-    avatar: '/profile.jpeg',
-    title: 'Product Manager',
-    company: 'Microsoft',
-    location: 'Hyderabad',
-    batch: '2019',
-    department: 'Information Technology',
-    isConnected: false,
-  },
-  {
-    _id: '3',
-    name: 'Amit Kumar',
-    avatar: '/profile.jpeg',
-    title: 'Founder & CEO',
-    company: 'TechStartup',
-    location: 'Delhi',
-    batch: '2018',
-    department: 'Electronics',
-    isConnected: false,
-  },
-  {
-    _id: '4',
-    name: 'Sneha Gupta',
-    avatar: '/profile.jpeg',
-    title: 'Data Scientist',
-    company: 'Amazon',
-    location: 'Mumbai',
-    batch: '2021',
-    department: 'Computer Science',
-    isConnected: true,
-  },
-  {
-    _id: '5',
-    name: 'Vikram Singh',
-    avatar: '/profile.jpeg',
-    title: 'Engineering Manager',
-    company: 'Meta',
-    location: 'Singapore',
-    batch: '2017',
-    department: 'Computer Science',
-    isConnected: false,
-  },
-  {
-    _id: '6',
-    name: 'Anita Desai',
-    avatar: '/profile.jpeg',
-    title: 'UX Designer',
-    company: 'Adobe',
-    location: 'Noida',
-    batch: '2020',
-    department: 'Design',
-    isConnected: true,
-  },
-];
+import { getAlumniDirectory } from '@/src/api/alumni';
 
 export default function AlumniDirectoryPage() {
-  const [alumni, setAlumni] = useState(MOCK_ALUMNI);
+  const [alumni, setAlumni] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [batchFilter, setBatchFilter] = useState('all');
 
@@ -111,6 +44,7 @@ export default function AlumniDirectoryPage() {
           value={batchFilter}
           onChange={(e) => setBatchFilter(e.target.value)}
           className="px-6 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#001145]/20 bg-white"
+          aria-label="Filter alumni by batch"
         >
           {batches.map(batch => (
             <option key={batch} value={batch}>
@@ -121,6 +55,15 @@ export default function AlumniDirectoryPage() {
       </div>
 
       {/* Alumni Grid */}
+      {loading ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading alumni...</p>
+        </div>
+      ) : alumni.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No alumni found. Try adjusting your filters.</p>
+        </div>
+      ) : null}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredAlumni.map((person) => (
           <div key={person._id} className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">

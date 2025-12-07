@@ -2,50 +2,38 @@
 
 import React, { useState, useEffect } from 'react';
 import { Briefcase, MapPin, Clock, Building2, Search, Filter, Plus, DollarSign } from 'lucide-react';
-// import { getAllJobs, applyToJob } from '@/src/api/jobs';
-
-// Mock data for now
-const MOCK_JOBS = [
-  {
-    _id: '1',
-    title: 'Senior Software Engineer',
-    company: 'Google',
-    location: 'Bangalore, India',
-    type: 'Full-time',
-    salary: '₹25-35 LPA',
-    description: 'We are looking for a senior software engineer to join our team...',
-    postedAt: '2 days ago',
-    skills: ['React', 'Node.js', 'TypeScript'],
-  },
-  {
-    _id: '2',
-    title: 'Product Manager',
-    company: 'Microsoft',
-    location: 'Hyderabad, India',
-    type: 'Full-time',
-    salary: '₹30-40 LPA',
-    description: 'Lead product development for our cloud services team...',
-    postedAt: '1 week ago',
-    skills: ['Product Strategy', 'Agile', 'Analytics'],
-  },
-  {
-    _id: '3',
-    title: 'Data Scientist',
-    company: 'Amazon',
-    location: 'Remote',
-    type: 'Full-time',
-    salary: '₹20-30 LPA',
-    description: 'Work on ML models for recommendation systems...',
-    postedAt: '3 days ago',
-    skills: ['Python', 'TensorFlow', 'SQL'],
-  },
-];
+import { getAllJobs } from '@/src/api/jobs';
 
 export default function JobsPage() {
-  const [jobs, setJobs] = useState(MOCK_JOBS);
-  const [loading, setLoading] = useState(false);
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedJob, setSelectedJob] = useState<typeof MOCK_JOBS[0] | null>(null);
+  const [selectedJob, setSelectedJob] = useState<any | null>(null);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await getAllJobs({ page: 1, limit: 50 });
+        const jobList = response.items.map((j: any) => ({
+          _id: j.id || j._id,
+          title: j.title,
+          company: j.company,
+          location: j.location,
+          type: j.type,
+          salary: j.salary || 'Competitive',
+          description: j.description,
+          postedAt: new Date(j.postedAt || j.createdAt).toLocaleDateString(),
+          skills: j.skills || [],
+        }));
+        setJobs(jobList);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJobs();
+  }, []);
 
   const filteredJobs = jobs.filter(job => 
     job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -132,7 +120,7 @@ export default function JobsPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  {job.skills.map((skill) => (
+                  {job.skills.map((skill: string) => (
                     <span key={skill} className="px-3 py-1 bg-[#e4f0ff] text-[#001145] text-xs rounded-full font-medium">
                       {skill}
                     </span>
@@ -166,7 +154,7 @@ export default function JobsPage() {
 
               <h3 className="font-bold text-[#001145] mb-3">Required Skills</h3>
               <div className="flex flex-wrap gap-2 mb-8">
-                {selectedJob.skills.map((skill) => (
+                {selectedJob.skills.map((skill: string) => (
                   <span key={skill} className="px-4 py-2 bg-[#e4f0ff] text-[#001145] rounded-full font-medium">
                     {skill}
                   </span>
