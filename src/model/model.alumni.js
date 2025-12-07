@@ -50,6 +50,10 @@ const alumniSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    branch: {
+        type: String,
+        trim: true,
+    },
 
     // Journey Timeline
     timeline: [{

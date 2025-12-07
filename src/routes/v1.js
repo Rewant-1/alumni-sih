@@ -22,6 +22,11 @@ const activityRoutes = require('./routes.activity.js');
 const surveyRoutes = require('./routes.survey.js');
 const newsletterRoutes = require('./routes.newsletter.js');
 
+// External integrations (from reference)
+const githubRoutes = require('./routes.github.js');
+const leetcodeRoutes = require('./routes.leetcode.js');
+const linkedinRoutes = require('./routes.linkedin.js');
+
 const v1 = express.Router();
 
 // Existing routes
@@ -46,4 +51,10 @@ v1.use('/activities', activityRoutes);
 v1.use('/surveys', surveyRoutes);
 v1.use('/newsletters', newsletterRoutes);
 
+// External integrations
+v1.use('/github', githubRoutes);
+v1.use('/leetcode', leetcodeRoutes);
+v1.use('/linkedin', linkedinRoutes);
+
 module.exports = v1;
+

@@ -220,6 +220,13 @@ const eventSchema = new mongoose.Schema({
     }
   }],
 
+  // Additional fields from reference
+  event_id: { type: String, unique: true, sparse: true },
+  name: { type: String }, // Alias for title
+  organizer: { type: String },
+  audience: { type: String },
+  registration_link: { type: String },
+
   createdAt: {
     type: Date,
     default: Date.now
