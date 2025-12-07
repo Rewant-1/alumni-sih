@@ -1,8 +1,11 @@
 const Post = require("../model/model.post.js");
 
-const createPost = async (postData) => {
+const createPost = async (postData, collegeId) => {
   try {
-    const newPost = new Post(postData);
+    const newPost = new Post({
+      ...postData,
+      collegeId: collegeId
+    });
     const savedPost = await newPost.save();
     return savedPost;
   } catch (error) {
@@ -10,47 +13,83 @@ const createPost = async (postData) => {
   }
 };
 
-const getPosts = async () => {
+const getPosts = async (collegeId, filters = {}) => {
   try {
-    const posts = await Post.find().populate("postedBy").populate("likes").populate("comments.user");
+    // Always filter by collegeId
+    const query = { collegeId, ...filters };
+    const posts = await Post.find(query)
+      .populate("postedBy", "name email")
+      .populate("likes", "name email")
+      .populate("comments.user", "name email")
+      .sort({ createdAt: -1 });
     return posts;
   } catch (error) {
     throw error;
   }
 };
 
-const getPostById = async (postId) => {
+const getPostById = async (postId, collegeId) => {
   try {
-    const post = await Post.findById(postId).populate("postedBy").populate("likes").populate("comments.user");
+    // Must match both postId and collegeId
+    const post = await Post.findOne({ _id: postId, collegeId })
+      .populate("postedBy", "name email")
+      .populate("likes", "name email")
+      .populate("comments.user", "name email");
     return post;
   } catch (error) {
     throw error;
   }
 };
 
-const updatePost = async (postId, postData) => {
+const updatePost = async (postId, postData, collegeId, userId) => {
   try {
-    const updatedPost = await Post.findByIdAndUpdate(postId, postData, {
-      new: true,
+    // Find post with college and owner validation
+    const post = await Post.findOne({ 
+      _id: postId, 
+      collegeId,
+      postedBy: userId 
     });
+    
+    if (!post) {
+      throw new Error("Post not found or access denied");
+    }
+    
+    Object.assign(post, postData);
+    const updatedPost = await post.save();
     return updatedPost;
   } catch (error) {
     throw error;
   }
 };
 
-const deletePost = async (postId) => {
+const deletePost = async (postId, collegeId, userId) => {
   try {
-    const deletedPost = await Post.findByIdAndDelete(postId);
+    // Only allow deletion if user is owner and from same college
+    const deletedPost = await Post.findOneAndDelete({ 
+      _id: postId, 
+      collegeId,
+      postedBy: userId 
+    });
+    
+    if (!deletedPost) {
+      throw new Error("Post not found or access denied");
+    }
+    
     return deletedPost;
   } catch (error) {
     throw error;
   }
 };
 
-const likePost = async (postId, userId) => {
+const likePost = async (postId, userId, collegeId) => {
     try {
-        const post = await Post.findById(postId);
+        // Validate post belongs to user's college
+        const post = await Post.findOne({ _id: postId, collegeId });
+        
+        if (!post) {
+            throw new Error("Post not found or access denied");
+        }
+        
         if (post.likes.includes(userId)) {
             post.likes.pull(userId);
         } else {
@@ -63,9 +102,15 @@ const likePost = async (postId, userId) => {
     }
 }
 
-const commentOnPost = async (postId, commentData) => {
+const commentOnPost = async (postId, commentData, collegeId) => {
     try {
-        const post = await Post.findById(postId);
+        // Validate post belongs to user's college
+        const post = await Post.findOne({ _id: postId, collegeId });
+        
+        if (!post) {
+            throw new Error("Post not found or access denied");
+        }
+        
         post.comments.push(commentData);
         await post.save();
         return post;

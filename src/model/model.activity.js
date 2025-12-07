@@ -66,6 +66,19 @@ const activitySchema = new mongoose.Schema({
         default: true
     },
 
+    // College isolation - support both field names
+    collegeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "admins",
+        required: true,
+        index: true
+    },
+    adminId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "admins",
+        index: true
+    },
+
     createdAt: {
         type: Date,
         default: Date.now
@@ -75,6 +88,10 @@ const activitySchema = new mongoose.Schema({
 // Index for queries
 activitySchema.index({ userId: 1, type: 1, createdAt: -1 });
 activitySchema.index({ userId: 1, createdAt: -1 });
+activitySchema.index({ collegeId: 1, createdAt: -1 });
+activitySchema.index({ collegeId: 1, type: 1 });
+activitySchema.index({ adminId: 1, createdAt: -1 });
+activitySchema.index({ adminId: 1, type: 1 });
 
 // Points configuration
 const ACTIVITY_POINTS = {
@@ -111,7 +128,9 @@ activitySchema.statics.logActivity = async function ({
     referenceId,
     referenceModel,
     metadata,
-    isPublic = true
+    isPublic = true,
+    collegeId,
+    adminId
 }) {
     return await this.create({
         userId,
@@ -121,7 +140,9 @@ activitySchema.statics.logActivity = async function ({
         referenceId,
         referenceModel,
         metadata,
-        isPublic
+        isPublic,
+        collegeId: collegeId || adminId,
+        adminId: adminId || collegeId
     });
 };
 

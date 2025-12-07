@@ -31,15 +31,23 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Initialize socket connection
-    const socketInstance = io('http://localhost:5000', {
-      auth: {
-        token,
-      },
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
-    });
+    // Helper to create socket with given transports
+    const createSocket = (transports: Array<'websocket' | 'polling'>) =>
+      io('http://localhost:5000', {
+        path: '/socket.io',
+        transports,
+        auth: { token },
+        withCredentials: true,
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 5,
+        timeout: 20000,
+      });
+
+    // Try WebSocket first (faster, avoids xhr polling). If it fails with polling errors,
+    // fall back to polling transport for environments where WebSocket is blocked.
+    let socketInstance = createSocket(['websocket']);
+    let usingWebsocket = true;
 
     // Connection events
     socketInstance.on('connect', () => {
@@ -52,12 +60,26 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       setIsConnected(false);
     });
 
-    socketInstance.on('connect_error', (error) => {
-      console.error('Socket connection error:', error.message);
-      if (error.message === 'Authentication error') {
+    socketInstance.on('connect_error', (error: any) => {
+      console.error('Socket connection error:', error?.message || error);
+      // If websocket transport failed with an XHR/polling error, try fallback to polling
+      const msg = (error && (error.message || '')).toLowerCase();
+      if (msg.includes('xhr poll error') && usingWebsocket) {
+        console.warn('WebSocket transport failed; falling back to polling transport');
+        usingWebsocket = false;
+        try {
+          if (socketInstance.connected) {
+            socketInstance.disconnect();
+          }
+        } catch (e) {}
+        if (socketInstance.io?.opts) {
+          socketInstance.io.opts.transports = ['polling'];
+        }
+        socketInstance.connect();
+      }
+
+      if (error && error.message === 'Authentication error') {
         console.warn('Token may be invalid or expired. Try logging in again.');
-        // Optionally clear invalid token
-        // localStorage.removeItem('token');
       }
       setIsConnected(false);
     });

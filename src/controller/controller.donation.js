@@ -16,6 +16,7 @@ const qrcodeService = require('../service/service.qrcode');
 const createDonationOrder = async (req, res) => {
     try {
         const { campaignId, amount, isAnonymous = false, message } = req.body;
+        const userCollegeId = req.user.collegeId;
 
         if (!amount || amount < 1) {
             return res.status(400).json({
@@ -30,6 +31,14 @@ const createDonationOrder = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: 'Campaign not found'
+            });
+        }
+
+        // CRITICAL: Validate campaign belongs to user's college
+        if (campaign.collegeId && campaign.collegeId.toString() !== userCollegeId.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: 'Cannot donate to campaigns from other colleges'
             });
         }
 
@@ -55,7 +64,7 @@ const createDonationOrder = async (req, res) => {
             });
         }
 
-        // Create pending donation record
+        // Create pending donation record with collegeId
         const donation = new DonationModel({
             campaignId,
             donorId: req.user._id,
@@ -66,7 +75,8 @@ const createDonationOrder = async (req, res) => {
             },
             paymentStatus: 'pending',
             isAnonymous,
-            message
+            message,
+            collegeId: userCollegeId
         });
 
         await donation.save();

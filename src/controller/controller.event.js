@@ -1,52 +1,85 @@
 const EventService = require("../service/service.event.js");
 const EventModel = require("../model/model.event.js");
+const { sendSuccess, sendError, sendNotFound } = require("../../utils/response");
 
 const createEvent = async (req, res) => {
   try {
-    const event = await EventService.createEvent(req.body);
-    res.status(201).json(event);
+    const collegeId = req.user.collegeId;
+    const eventData = {
+      ...req.body,
+      createdBy: req.user.userId
+    };
+    const event = await EventService.createEvent(eventData, collegeId);
+    return sendSuccess(res, event, "Event created successfully", 201);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error creating event:", error);
+    return sendError(res, "Failed to create event", 500, error.message);
   }
 };
 
 const getEvents = async (req, res) => {
   try {
-    const events = await EventService.getEvents();
-    res.status(200).json(events);
+    const collegeId = req.user.collegeId;
+    const filters = {};
+    
+    // Optional status filter
+    if (req.query.status) {
+      filters.status = req.query.status;
+    }
+    
+    const events = await EventService.getEvents(collegeId, filters);
+    return sendSuccess(res, events, "Events fetched successfully");
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching events:", error);
+    return sendError(res, "Failed to fetch events", 500, error.message);
   }
 };
 
 const getEventById = async (req, res) => {
   try {
-    const event = await EventService.getEventById(req.params.id);
-    if (event) {
-      res.status(200).json(event);
-    } else {
-      res.status(404).json({ message: "Event not found" });
+    const collegeId = req.user.collegeId;
+    const event = await EventService.getEventById(req.params.id, collegeId);
+    
+    if (!event) {
+      return sendNotFound(res, "Event not found or access denied");
     }
+    
+    return sendSuccess(res, event, "Event fetched successfully");
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error fetching event:", error);
+    return sendError(res, "Failed to fetch event", 500, error.message);
   }
 };
 
 const updateEvent = async (req, res) => {
   try {
-    const event = await EventService.updateEvent(req.params.id, req.body);
-    res.status(200).json(event);
+    const collegeId = req.user.collegeId;
+    const event = await EventService.updateEvent(req.params.id, req.body, collegeId);
+    
+    if (!event) {
+      return sendNotFound(res, "Event not found or access denied");
+    }
+    
+    return sendSuccess(res, event, "Event updated successfully");
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error updating event:", error);
+    return sendError(res, "Failed to update event", 500, error.message);
   }
 };
 
 const deleteEvent = async (req, res) => {
   try {
-    await EventService.deleteEvent(req.params.id);
-    res.status(204).send();
+    const collegeId = req.user.collegeId;
+    const event = await EventService.deleteEvent(req.params.id, collegeId);
+    
+    if (!event) {
+      return sendNotFound(res, "Event not found or access denied");
+    }
+    
+    return res.status(204).send();
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error deleting event:", error);
+    return sendError(res, "Failed to delete event", 500, error.message);
   }
 };
 
@@ -55,12 +88,13 @@ const registerForEvent = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.userId;
+    const collegeId = req.user.collegeId;
 
-    const event = await EventModel.findById(id);
+    const event = await EventModel.findOne({ _id: id, collegeId });
     if (!event) {
       return res.status(404).json({ 
         success: false, 
-        message: "Event not found" 
+        message: "Event not found or access denied" 
       });
     }
 
@@ -127,9 +161,11 @@ const registerForEvent = async (req, res) => {
 const getMyEvents = async (req, res) => {
   try {
     const userId = req.user.userId;
+    const collegeId = req.user.collegeId;
     
     const events = await EventModel.find({
-      registeredUsers: userId
+      registeredUsers: userId,
+      collegeId: collegeId
     })
     .select('title description date endDate venue type category coverImage status')
     .sort({ date: 1 });

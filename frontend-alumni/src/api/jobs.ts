@@ -68,6 +68,11 @@ export interface JobSearchParams extends PaginationParams {
   skills?: string[];
 }
 
+export interface CreateApplicationData {
+  resumeUrl: string;
+  coverLetter?: string;
+}
+
 // Mock Data
 const MOCK_JOBS: Job[] = [
   {
@@ -242,7 +247,7 @@ export const updateJob = async (id: string, data: Partial<CreateJobData>): Promi
 
 export const deleteJob = async (id: string): Promise<void> => {
   await apiClient.delete(`/jobs/${id}`);
-};;
+};
 
 export const applyToJob = async (id: string, data: CreateApplicationData): Promise<JobApplication> => {
   const response = await apiClient.post<ApiResponse<JobApplication>>(`/jobs/${id}/apply`, data);

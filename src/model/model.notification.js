@@ -88,6 +88,14 @@ const notificationSchema = new mongoose.Schema({
     // Expiry
     expiresAt: Date,
 
+    // College isolation
+    collegeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "admins",
+        required: true,
+        index: true
+    },
+
     createdAt: {
         type: Date,
         default: Date.now
@@ -102,6 +110,8 @@ notificationSchema.index(
 
 // Index for queries
 notificationSchema.index({ userId: 1, read: 1, createdAt: -1 });
+notificationSchema.index({ collegeId: 1, read: 1 });
+notificationSchema.index({ userId: 1, collegeId: 1 });
 
 // Static method to create notification
 notificationSchema.statics.createNotification = async function ({

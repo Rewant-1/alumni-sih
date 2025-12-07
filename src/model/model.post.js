@@ -8,6 +8,15 @@ const postSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
   },
+  
+  // College isolation
+  collegeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "admins",
+    required: true,
+    index: true
+  },
+  
   likes: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -24,5 +33,9 @@ const postSchema = new mongoose.Schema({
 
   createdAt: { type: Date, default: Date.now }
 });
+
+// Indexes for efficient college-based queries
+postSchema.index({ collegeId: 1, createdAt: -1 });
+postSchema.index({ collegeId: 1, postedBy: 1 });
 
 module.exports = mongoose.model("Post", postSchema);

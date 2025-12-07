@@ -96,6 +96,14 @@ const donationSchema = new mongoose.Schema({
         certificateUrl: String
     },
 
+    // College isolation - gets from campaign
+    collegeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "admins",
+        required: true,
+        index: true
+    },
+
     createdAt: {
         type: Date,
         default: Date.now
@@ -115,6 +123,8 @@ donationSchema.pre('save', function (next) {
 // Index for queries
 donationSchema.index({ campaignId: 1, donorId: 1, paymentStatus: 1 });
 donationSchema.index({ donorId: 1, createdAt: -1 });
+donationSchema.index({ collegeId: 1, paymentStatus: 1 });
+donationSchema.index({ collegeId: 1, campaignId: 1 });
 
 const DonationModel = mongoose.model("Donation", donationSchema);
 

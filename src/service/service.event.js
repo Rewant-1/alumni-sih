@@ -1,8 +1,11 @@
 const Event = require("../model/model.event.js");
 
-const createEvent = async (eventData) => {
+const createEvent = async (eventData, collegeId) => {
   try {
-    const newEvent = new Event(eventData);
+    const newEvent = new Event({
+      ...eventData,
+      collegeId: collegeId
+    });
     const savedEvent = await newEvent.save();
     return savedEvent;
   } catch (error) {
@@ -10,38 +13,53 @@ const createEvent = async (eventData) => {
   }
 };
 
-const getEvents = async () => {
+const getEvents = async (collegeId, filters = {}) => {
   try {
-    const events = await Event.find().populate("createdBy").populate("registeredUsers");
+    // Always filter by collegeId
+    const query = { collegeId, ...filters };
+    const events = await Event.find(query)
+      .populate("createdBy", "name email")
+      .populate("registeredUsers", "name email")
+      .sort({ date: 1 });
     return events;
   } catch (error) {
     throw error;
   }
 };
 
-const getEventById = async (eventId) => {
+const getEventById = async (eventId, collegeId) => {
   try {
-    const event = await Event.findById(eventId).populate("createdBy").populate("registeredUsers");
+    // Must match both eventId and collegeId
+    const event = await Event.findOne({ _id: eventId, collegeId })
+      .populate("createdBy", "name email")
+      .populate("registeredUsers", "name email");
     return event;
   } catch (error) {
     throw error;
   }
 };
 
-const updateEvent = async (eventId, eventData) => {
+const updateEvent = async (eventId, eventData, collegeId) => {
   try {
-    const updatedEvent = await Event.findByIdAndUpdate(eventId, eventData, {
-      new: true,
-    });
+    // Only update if event belongs to college
+    const updatedEvent = await Event.findOneAndUpdate(
+      { _id: eventId, collegeId },
+      eventData,
+      { new: true }
+    );
     return updatedEvent;
   } catch (error) {
     throw error;
   }
 };
 
-const deleteEvent = async (eventId) => {
+const deleteEvent = async (eventId, collegeId) => {
   try {
-    const deletedEvent = await Event.findByIdAndDelete(eventId);
+    // Only delete if event belongs to college
+    const deletedEvent = await Event.findOneAndDelete({ 
+      _id: eventId, 
+      collegeId 
+    });
     return deletedEvent;
   } catch (error) {
     throw error;

@@ -11,7 +11,8 @@ export default function RegisterPage() {
     email: '',
     password: '',
     graduationYear: '',
-    degreeUrl: 'http://example.com/degree.pdf' // Placeholder or implement file upload
+    degreeUrl: 'http://example.com/degree.pdf', // Placeholder or implement file upload
+    collegeId: ''
   });
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -26,7 +27,20 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      await registerAlumni(formData);
+      if (!formData.collegeId) {
+        setError('Please provide a valid College ID.');
+        setLoading(false);
+        return;
+      }
+
+      await registerAlumni({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        graduationYear: Number(formData.graduationYear),
+        degreeUrl: formData.degreeUrl,
+        collegeId: formData.collegeId
+      });
       // Redirect or show success
       window.location.href = '/login';
     } catch (err) {
@@ -41,7 +55,7 @@ export default function RegisterPage() {
       <div className="absolute inset-0 z-0 flex">
         {/* Left side white with subtle gradient/shadow effect */}
         <div className="w-1/2 h-full bg-white relative hidden md:block">
-          <div className="absolute right-0 top-0 h-full w-24 bg-gradient-to-l from-gray-100 to-transparent opacity-50"></div>
+          <div className="absolute right-0 top-0 h-full w-24 bg-linear-to-l from-gray-100 to-transparent opacity-50"></div>
         </div>
         {/* Right side dark navy */}
         <div className="w-full md:w-1/2 h-full bg-[#020c25]"></div>
@@ -52,7 +66,7 @@ export default function RegisterPage() {
         
         {/* Left Column: Logo Area */}
         <div className="w-full md:w-1/2 bg-white flex flex-col items-center justify-center relative p-8 order-1 md:order-0 border-b md:border-b-0 border-slate-100">
-          <div className="flex-grow flex items-center justify-center w-full">
+          <div className="grow flex items-center justify-center w-full">
             {/* Logo Placeholder */}
             <Image 
               src="/sarthak.png" 
@@ -154,8 +168,24 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* 5. Degree URL (Full Width - Visual Drop Zone) */}
-              <div className="col-span-2 mt-1">
+              {/* 5. College ID (Half Width) */}
+              <div className="col-span-1 relative">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <FileText size={16} />
+                </div>
+                <input
+                  type="text"
+                  name="collegeId"
+                  placeholder="College ID"
+                  className="w-full pl-10 pr-4 py-2.5 bg-transparent border border-slate-400 rounded-xl text-sm placeholder:text-slate-400 focus:outline-none focus:border-[#001245] focus:ring-1 focus:ring-[#001245] transition-all"
+                  value={formData.collegeId}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {/* 6. Degree URL (Half Width - Visual Drop Zone) */}
+              <div className="col-span-2 md:col-span-1 mt-1">
                  <label className="flex flex-col items-center justify-center w-full h-20 px-4 bg-white border-2 border-slate-300 border-dashed rounded-xl cursor-pointer hover:border-[#001245] hover:bg-slate-50 transition-all group">
                     <div className="flex items-center gap-3 text-slate-500 group-hover:text-[#001245] transition-colors">
                         <FileText size={24} strokeWidth={1.5} />

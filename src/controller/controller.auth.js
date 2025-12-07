@@ -75,6 +75,14 @@ const registerAlumni = async (req, res) => {
 
 const login = async (req, res) => {
     const { email, password } = req.body;
+    // Debug: log incoming login attempts (only keys, never log full passwords in prod)
+    try {
+        console.log('Login attempt payload keys:', Object.keys(req.body));
+        // Log email and masked password length to diagnose credential mismatches
+        console.log('Login attempt:', { email: (email || null), passwordLength: password ? password.length : 0 });
+    } catch (e) {
+        // ignore
+    }
     if (!email || !password) {
         return sendBadRequest(res, "Email and password are required.");
     }
@@ -105,6 +113,7 @@ const login = async (req, res) => {
                 userId: user._id,
                 userType: user.userType,
                 collegeId: user.collegeId,
+                adminId: user.collegeId  // adminId is the college identifier
             },
             process.env.JWT_SECRET
         );

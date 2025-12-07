@@ -1,8 +1,15 @@
 const express = require("express");
 const PostController = require("../controller/controller.post.js");
+const AuthMiddleware = require("../middleware/middleware.auth.js");
+const { ensureSameCollege } = require("../middleware/middleware.collegeIsolation.js");
 
 const router = express.Router();
 
+// All routes require authentication and college isolation
+router.use(AuthMiddleware.authenticateToken);
+router.use(ensureSameCollege);
+
+// Post routes
 router.post("/", PostController.createPost);
 router.get("/", PostController.getPosts);
 router.get("/:id", PostController.getPostById);

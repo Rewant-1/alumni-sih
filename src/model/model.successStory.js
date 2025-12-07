@@ -124,8 +124,14 @@ const successStorySchema = new mongoose.Schema({
         ref: "User"
     },
 
-    // College
+    // College - support both refs for compatibility
     college: { type: mongoose.Schema.Types.ObjectId, ref: "College" },
+    collegeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "admins",
+        required: true,
+        index: true
+    },
 
     publishedAt: { type: Date },
     createdAt: { type: Date, default: Date.now },
@@ -178,6 +184,8 @@ successStorySchema.index({ title: 'text', content: 'text', tags: 'text' });
 successStorySchema.index({ status: 1, publishedAt: -1 });
 successStorySchema.index({ alumniId: 1, status: 1 });
 successStorySchema.index({ slug: 1 });
+successStorySchema.index({ collegeId: 1, status: 1 });
+successStorySchema.index({ collegeId: 1, isFeatured: 1 });
 
 const SuccessStoryModel = mongoose.model("SuccessStory", successStorySchema);
 

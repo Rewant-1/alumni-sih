@@ -86,7 +86,7 @@ export default function AlumniProfile() {
                 // - { user, alumni }
                 // - { data: { user, alumni } }
                 // - { id | _id } (legacy)
-                const payload = authData?.data ?? authData ?? {};
+                const payload: any = (authData as any)?.data ?? (authData as any) ?? {};
                 const userObj = payload?.user ?? payload;
                 const alumniObj = payload?.alumni ?? payload?.user?.alumni ?? null;
 
