@@ -1,0 +1,16 @@
+{
+  "name": "stripe",
+  "version": "1.0.0",
+  "description": "This folder contains the complete backend logic for Stripe payment integration. The frontend components are located in `frontend-alumni/components/stripe`.",
+  "main": "controller.stripe.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "stripe": "^20.0.0"
+  }
+}
